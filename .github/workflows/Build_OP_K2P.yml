@@ -63,13 +63,13 @@ jobs:
         REPO_URL: https://github.com/kakolukia/immortalwrt.git
         REPO_BRANCH: master
       run: |
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        git clone --depth=1 $REPO_URL -b $REPO_BRANCH openwrt
 
-    - name: Install Helloword
+    - name: Add extra feeds source
+      working-directory: ./openwrt
       run: |
-        cd openwrt
-        sed -i "/helloworld/d" "feeds.conf.default"
-        echo "src-git helloworld https://github.com/fw876/helloworld.git" >> "feeds.conf.default"
+        sed -i "/helloworld/d" ./feeds.conf.default
+        echo "src-git helloworld https://github.com/fw876/helloworld.git" >> ./feeds.conf.default
         
     - name: Update & Install feeds
       working-directory: ./openwrt
@@ -96,7 +96,7 @@ jobs:
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x ./customize.sh && ./customize.sh
         cd openwrt && make defconfig
-        
+    
     - name: Download package
       working-directory: ./openwrt
       run: |
@@ -110,7 +110,7 @@ jobs:
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s
     
-    - name : Upload artifact
+    - name: Upload artifact
       uses: actions/upload-artifact@master
       with:
         name: OpenWrt
